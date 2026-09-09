@@ -13,6 +13,8 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
   selectedSiteId,
   onSelectSite,
 }) => {
+  const activeSite = sites.find((s) => s.id === selectedSiteId) || sites[0];
+
   return (
     <div className="relative w-full h-[520px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col justify-between select-none">
       {/* Background Satellite Grid & Graphic Vectors */}
@@ -61,9 +63,22 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
         <path d="M 120,0 L 220,260 L 380,440 L 480,600" fill="none" stroke="#475569" strokeWidth="2.5" />
         <path d="M 380,440 L 780,220 L 1000,280" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="6 3" />
         
-        {/* SITE-01 Kurnool Newly Detected Road (Highlighted Cyan Line on Map) */}
-        <path d="M 320,220 L 450,290 L 480,340" fill="none" stroke="#06b6d4" strokeWidth="4" strokeLinecap="round" className="animate-pulse" />
-        <path d="M 320,220 L 450,290 L 480,340" fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" />
+        {/* Selected Site Feature Corridor Highlight */}
+        <path
+          d={`M ${activeSite.xPercent * 10 - 60},${activeSite.yPercent * 6 - 40} L ${activeSite.xPercent * 10 + 70},${activeSite.yPercent * 6 + 30} L ${activeSite.xPercent * 10 + 100},${activeSite.yPercent * 6 + 80}`}
+          fill="none"
+          stroke="#06b6d4"
+          strokeWidth="4"
+          strokeLinecap="round"
+          className="animate-pulse"
+        />
+        <path
+          d={`M ${activeSite.xPercent * 10 - 60},${activeSite.yPercent * 6 - 40} L ${activeSite.xPercent * 10 + 70},${activeSite.yPercent * 6 + 30} L ${activeSite.xPercent * 10 + 100},${activeSite.yPercent * 6 + 80}`}
+          fill="none"
+          stroke="#67e8f9"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
 
         {/* Radar Sweep Effect in Top Right */}
         <g transform="translate(850, 100)">
@@ -88,7 +103,7 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
             <Layers className="w-3.5 h-3.5 text-cyan-400" /> Multispectral NIR/SWIR
           </span>
           <span className="bg-slate-900/90 border border-slate-700/60 px-2.5 py-1 rounded-md text-slate-300 flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5 text-cyan-400" /> 15.8281° N, 78.0373° E
+            <Compass className="w-3.5 h-3.5 text-cyan-400" /> {activeSite.lat}° N, {activeSite.lng}° E
           </span>
         </div>
       </div>
@@ -124,7 +139,7 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
                   className={`absolute w-10 h-10 rounded-full animate-ping opacity-30 ${markerGlow}`}
                 />
                 <div
-                  className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 transition-transform duration-300 group-hover:scale-115 shadow-lg ${
+                  className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 transition-transform duration-300 group-hover:scale-[1.15] shadow-lg ${
                     isSelected
                       ? 'bg-cyan-500 border-white text-slate-950 scale-110 ring-4 ring-cyan-500/40'
                       : 'bg-slate-900/90 border-cyan-400 text-cyan-300'
@@ -147,7 +162,7 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
                   <span className="text-[10px] opacity-75">({site.name})</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5 text-[10px]">
-                  <span className={`px-1 py-0.2 rounded border font-semibold ${priorityColor}`}>
+                  <span className={`px-1 py-0.5 rounded border font-semibold ${priorityColor}`}>
                     {site.priority}
                   </span>
                   <span className="text-cyan-300">{site.confidence}% conf</span>

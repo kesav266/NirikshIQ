@@ -78,9 +78,21 @@ export function App() {
     setActiveTab('analysis');
   };
 
+  // Helper to generate dynamic timestamp in IST
+  const getFormattedTimestamp = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} • ${hours}:${mins} IST`;
+  };
+
   // Handle Analyst Verification (Confirm / Reject)
   const handleVerifySite = (siteId: string, newStatus: 'CONFIRMED' | 'REJECTED') => {
-    const timestamp = '08 Sep 2026 • 22:30 IST';
+    const timestamp = getFormattedTimestamp();
 
     setSites((prev) =>
       prev.map((s) =>
@@ -112,6 +124,7 @@ export function App() {
     setSites(INITIAL_SITES);
     setSelectedSite(INITIAL_SITES[0]);
     setReviewQueue(INITIAL_REVIEW_QUEUE);
+    setReviewFilter('All');
     setSearchQuery('Find newly developed roads');
     setIsSearching(false);
     setCurrentStageIndex(-1);
@@ -201,7 +214,7 @@ export function App() {
                 <span>Change Analysis</span>
               </div>
               <span className="text-[10px] font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded">
-                SITE-01
+                {selectedSite.code}
               </span>
             </button>
 
@@ -604,37 +617,56 @@ export function App() {
                 </div>
 
                 {/* Intelligent Priority */}
-                <div className="bg-slate-900 border border-red-500/40 rounded-xl p-5 shadow-xl space-y-4 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-xl pointer-events-none" />
+                {(() => {
+                  const isHigh = selectedSite.priority === 'HIGH';
+                  const isMed = selectedSite.priority === 'MEDIUM';
+                  const borderColor = isHigh ? 'border-red-500/40' : isMed ? 'border-amber-500/40' : 'border-emerald-500/40';
+                  const glowColor = isHigh ? 'bg-red-500/10' : isMed ? 'bg-amber-500/10' : 'bg-emerald-500/10';
+                  const badgeStyle = isHigh
+                    ? 'bg-red-950 border-red-500/60 text-red-400'
+                    : isMed
+                    ? 'bg-amber-950 border-amber-500/60 text-amber-400'
+                    : 'bg-emerald-950 border-emerald-500/60 text-emerald-400';
+                  const bulletColor = isHigh ? 'text-red-400' : isMed ? 'text-amber-400' : 'text-emerald-400';
 
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-bold text-slate-100 uppercase tracking-wider font-mono">
-                      Intelligent Priority
+                  return (
+                    <div className={`bg-slate-900 border ${borderColor} rounded-xl p-5 shadow-xl space-y-4 relative overflow-hidden`}>
+                      <div className={`absolute top-0 right-0 w-24 h-24 ${glowColor} rounded-full blur-xl pointer-events-none`} />
+
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-bold text-slate-100 uppercase tracking-wider font-mono">
+                          Intelligent Priority
+                        </div>
+                        <span className={`px-2.5 py-1 rounded border font-mono font-bold text-xs ${badgeStyle}`}>
+                          {selectedSite.priority} PRIORITY
+                        </span>
+                      </div>
+
+                      <ul className="space-y-2 text-xs text-slate-300 font-medium">
+                        <li className="flex items-start gap-2">
+                          <span className={`${bulletColor} font-bold`}>•</span> Significant structural change
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className={`${bulletColor} font-bold`}>•</span> Persistent across temporal observations
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className={`${bulletColor} font-bold`}>•</span> Confidence detection ({selectedSite.confidence}%)
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className={`${bulletColor} font-bold`}>•</span> Low image-quality interference
+                        </li>
+                      </ul>
+
+                      <div className="pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-400">
+                        {isHigh
+                          ? 'AUTOMATICALLY ESCALATED FOR IMMEDIATE HUMAN VERIFICATION'
+                          : isMed
+                          ? 'QUEUED FOR STANDARD ANALYST REVIEW'
+                          : 'MONITORED BACKGROUND OBSERVATION'}
+                      </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-red-950 border border-red-500/60 text-red-400 font-mono font-bold text-xs">
-                      HIGH PRIORITY
-                    </span>
-                  </div>
-
-                  <ul className="space-y-2 text-xs text-slate-300 font-medium">
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-400 font-bold">•</span> Significant structural change
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-400 font-bold">•</span> Persistent across temporal observations
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-400 font-bold">•</span> High confidence detection (92%)
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-red-400 font-bold">•</span> Low image-quality interference
-                    </li>
-                  </ul>
-
-                  <div className="pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-400">
-                    AUTOMATICALLY ESCALATED FOR IMMEDIATE HUMAN VERIFICATION
-                  </div>
-                </div>
+                  );
+                })()}
 
               </div>
 
@@ -815,17 +847,17 @@ export function App() {
               <div>
                 <h2 className="text-2xl font-bold text-slate-50 tracking-tight">Temporal Analysis</h2>
                 <p className="text-sm text-slate-400 mt-1">
-                  Multi-spectral temporal trend reconstruction for SITE-01 — Kurnool.
+                  Multi-spectral temporal trend reconstruction for {selectedSite.code} — {selectedSite.name}.
                 </p>
               </div>
 
               {/* Target Banner */}
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between font-mono text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <span className="text-cyan-400 font-bold">SITE-01 — Kurnool</span>
-                  <span>| Road Development Corridor</span>
+                  <span className="text-cyan-400 font-bold">{selectedSite.code} — {selectedSite.name}</span>
+                  <span>| {selectedSite.changeType}</span>
                 </div>
-                <span>Observations: June 2026 → July 2026 → August 2026</span>
+                <span>Observations: {selectedSite.firstObservation} → {selectedSite.date}</span>
               </div>
 
               {/* 3 Thumbnails Visual Timeline */}
@@ -946,7 +978,15 @@ export function App() {
                 {SIMILAR_SITES.map((sim) => (
                   <div
                     key={sim.id}
-                    onClick={() => setActiveTab('analysis')}
+                    onClick={() => {
+                      const matchedSite =
+                        sites.find(
+                          (s) =>
+                            s.name.toLowerCase().includes(sim.name.toLowerCase()) ||
+                            s.changeType.toLowerCase().includes(sim.changePattern.toLowerCase())
+                        ) || sites[0];
+                      handleSelectSiteForAnalysis(matchedSite);
+                    }}
                     className="bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 shadow-xl transition-all cursor-pointer space-y-4 group"
                   >
                     <div className="flex items-center justify-between">

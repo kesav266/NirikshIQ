@@ -110,7 +110,7 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            Before (June 2026)
+            Before ({site.firstObservation})
           </button>
 
           <button
@@ -122,7 +122,7 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            After (August 2026)
+            After ({site.date})
           </button>
 
           <button
@@ -146,7 +146,7 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
             <RenderSatelliteContent isAfterLayer={false} />
             <div className="absolute top-4 left-4 bg-slate-900/90 border border-slate-700 px-3 py-1.5 rounded-md text-xs font-mono text-slate-200 flex items-center gap-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-slate-400" />
-              BEFORE — JUNE 2026 (BASELINE)
+              BEFORE — {site.firstObservation.toUpperCase()} (BASELINE)
             </div>
           </div>
         )}
@@ -156,14 +156,14 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
             <RenderSatelliteContent isAfterLayer={true} />
             <div className="absolute top-4 left-4 bg-slate-900/90 border border-cyan-500/50 px-3 py-1.5 rounded-md text-xs font-mono text-cyan-300 flex items-center gap-2 shadow-lg">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              AFTER — AUGUST 2026 (ROAD DETECTED)
+              AFTER — {site.date.toUpperCase()} ({site.changeType.toUpperCase()})
             </div>
 
             {/* Detected Change Overlay Tag */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-cyan-950/90 border border-cyan-400 px-4 py-2 rounded-lg shadow-2xl text-cyan-200 flex items-center gap-2 font-mono text-xs animate-bounce">
               <Sparkles className="w-4 h-4 text-cyan-400" />
               <span className="font-bold tracking-wide">DETECTED CHANGE:</span>
-              <span className="bg-cyan-500 text-slate-950 font-bold px-2 py-0.5 rounded">1.84 ha</span>
+              <span className="bg-cyan-500 text-slate-950 font-bold px-2 py-0.5 rounded">{site.changedArea}</span>
             </div>
           </div>
         )}
@@ -193,12 +193,12 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
 
             {/* Labels on Top */}
             <div className="absolute top-4 left-4 bg-slate-900/90 border border-slate-700 px-2.5 py-1.5 rounded-md text-xs font-mono text-slate-300 shadow-lg pointer-events-none">
-              BEFORE: JUNE 2026
+              BEFORE: {site.firstObservation.toUpperCase()}
             </div>
 
             <div className="absolute top-4 right-4 bg-slate-900/90 border border-cyan-500/60 px-2.5 py-1.5 rounded-md text-xs font-mono text-cyan-300 shadow-lg pointer-events-none flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              AFTER: AUGUST 2026
+              AFTER: {site.date.toUpperCase()}
             </div>
 
             {/* Change Badge */}
@@ -206,7 +206,7 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
               <span className="w-2 h-2 rounded-full bg-cyan-400" />
               <span className="text-cyan-400 font-bold">DETECTED CHANGE</span>
               <span className="text-slate-400">|</span>
-              <span>1.84 ha Road Corridor</span>
+              <span>{site.changedArea} {site.changeType}</span>
             </div>
 
             {/* Interactive Drag Line & Handle */}
@@ -226,16 +226,17 @@ export const SatelliteImageViewer: React.FC<SatelliteImageViewerProps> = ({ site
       {/* Swipe Slider Control Bar */}
       {viewMode === 'SWIPE' && (
         <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-4">
-          <span className="text-xs font-mono text-slate-400 w-24 text-right">JUNE 2026</span>
+          <span className="text-xs font-mono text-slate-400 w-28 text-right">{site.firstObservation.toUpperCase()}</span>
           <input
             type="range"
             min="0"
             max="100"
             value={swipePos}
             onChange={(e) => setSwipePos(Number(e.target.value))}
+            aria-label="Swipe comparison slider"
             className="w-full accent-cyan-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
           />
-          <span className="text-xs font-mono text-cyan-400 w-24">AUGUST 2026</span>
+          <span className="text-xs font-mono text-cyan-400 w-28">{site.date.toUpperCase()}</span>
         </div>
       )}
     </div>
